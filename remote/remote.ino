@@ -12,18 +12,18 @@
 #define READY_LED_PIN   11
 
 // Packet defines
-/* Packet structure
-  [0] To Node
-  [1] From Node
-  [2] Command
-  [3] Null Terminator
+/* Packet structure (one byte bitfield)
+  [7] 0 (So the result is a 7-bit ASCII character)
+  [6-5] To Addr
+  [4-3] From Addr
+  [2-0] Command
   
   Node addresses:
   0: Blimp
   1: Remote 1
   2: Remote 2
   3: Remote 3
-  255: Broadcast
+  If To Addr == From Addr, treat as broadcast message
   
   Commands (for both packets and buttons):
   0: None
@@ -33,10 +33,9 @@
   4: Begin beaconing
   5: Stop beaconing
   6: Beacon Beep (packet to say who is currently beaconing)
-  10: Activate hoist
+  7: Activate hoist
   
   */
-#define PACKET_LEN 4
 #define BLIMP_ADDR 0
 #define BROAD_ADDR 255
 #define CMD_NULL 0
@@ -87,19 +86,52 @@ void disable_beaconing(){
 /* Sends a wireless packet
  */
 void send_packet(byte target, byte command){
-  char buffer[PACKET_LEN] = {target, my_id, command, 0};
-  Serial.print(buffer);
+  char packet = '\0';
+  
+  if(target == BROAD_ADDR){
+    target = my_id;
+  }
+  
+  packet = ((target &  0x3) << 5) |
+           ((my_id  &  0x3) << 3) |
+           (command &  0x7);
+  Serial.write(packet);
 }
 
 /* Checks the RX buffer for any new bytes, and return when a complete packet has been read
  * @return A command value from the packet
  */
 byte check_packets(){
-  static char buffer[PACKET_LEN] = {0, 0, 0, 0};
-  static int bytes_read = 0;
-  byte command;
+  byte packet;
+  int bytes_read = 0;
+  int to_addr = -1;
+  int from_addr = -1;
+  int command = 0;
   
-  return command;
+  // Check for new byte
+  if(Serial.available() > 0){
+    // Read next byte in buffer
+    bytes_read = Serial.readBytes((char *)&packet, 1);
+    
+    // Parse the packet
+    to_addr =   (packet >> 5) & 0x3;
+    from_addr = (packet >> 3) & 0x3;
+    command =   packet & 0x7;
+    
+    // Only accept packets addressed to the current node, or broadcast
+    if(to_addr == my_id || to_addr == from_addr){
+      // Reply to pings here, since the source address isn't returned
+      if(command == CMD_PING){
+        send_packet(from_addr, CMD_ECHO);
+      }
+      
+      // Return the received command
+      return command;
+    }
+  }
+  
+  // There wasn't a command received, so return the null command
+  return CMD_NULL;
 }
 
 /* Checks the buttons. Returns an appropriate command
@@ -127,10 +159,41 @@ void loop(){
   command = check_packets();
   switch(command){
     case(CMD_NULL):
+    case(CMD_PING):
+    case(CMD_ECHO):
+    case(CMD_BCN_REQ):
+    case(CMD_HOIST):
+      // Nothing needs to be done for these
+      break;
+    case(CMD_BCN_START):
+      enable_beaconing();
+      break;
+    case(CMD_BCN_STOP):
+      disable_beaconing();
+      break;
+    case(CMD_BCN_BEEP):
+      // If someone else is beaconing, stop so multiple nodes aren't beaconing simultaneously
+      disable_beaconing();
+      break;
+    default:
+      // Nothing to do. Maybe flash LED to indicate error?
       break;
   }
   command = check_buttons();
   switch(command){
+    case(CMD_NULL):
+      // Nothing pressed, nothing to do
+      break;
+    case(CMD_HOIST):
+      // The hoist button was pressed, send the packet
+      send_packet(BLIMP_ADDR, CMD_HOIST);
+      break;
+    case(CMD_BCN_REQ):
+      send_packet(BROAD_ADDR, CMD_BCN_REQ);
+      break;
+    default:
+      // Do something on error?
+      break;
   }
   beacon();
 }
