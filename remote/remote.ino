@@ -1,7 +1,5 @@
 
-// XBee Defines
-#define CHANNEL 0x0D
-#define BAUD 9600
+
 
 // Pin Assignment Defines
 #define SUMMON_BTN_PIN   2
@@ -45,7 +43,7 @@
 #define CMD_BCN_START 4
 #define CMD_BCN_STOP 5
 #define CMD_BCN_BEEP 6
-#define CMD_HOIST 10
+#define CMD_HOIST 7
 
 // Globals
 byte my_id = 0;
@@ -138,7 +136,8 @@ byte check_packets(){
  * @return The command to activate based on the pressed buttons
  */
 byte check_buttons(){
-  byte command = 0;
+  byte command = CMD_NULL;
+  
   return command;
 }
 
