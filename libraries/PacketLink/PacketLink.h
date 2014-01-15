@@ -46,15 +46,18 @@
 #define CMD_BCN_STOP 5
 #define CMD_BCN_BEEP 6
 #define CMD_HOIST 7
+// THERE CAN BE ONLY EIGHT
  
-class PacetLink{
+class PacketLink{
 	public:
-		byte my_id = 0;
+		byte my_id;
 		PacketLink();
 		void set_id(byte id);
-	private
-}
- 
+		void send_packet(byte target, byte command);
+		byte check_packets();
+	private:
+		
+};
  
 #endif // PACKET_LINK_H
  
