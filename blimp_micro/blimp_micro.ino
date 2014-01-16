@@ -459,8 +459,10 @@ void loop()
   char incomingByte;
   int16_t  vremn = 0;  
 
-  if ( directin ) directin = 0;                // X koordinate;
-  else            directin = 1;                // Y koordinate;
+  //if ( directin ) directin = 0;                // X koordinate;
+  //else            directin = 1;                // Y koordinate;
+  // Only operate in the horizontal axis
+  directin = 0;
   
   take_it( directin );                         // SAMPLING
     
@@ -523,12 +525,13 @@ void loop()
           if (lokaVect[directin][i] > vremn) lokaVect[directin][i] -= srvoAccl[directin];
           }
         }
-/*
+
         indxUpdt++;
         if ( indxUpdt > updtRate )             // Servo running at 50 Hz, don't have to be updated often ~1/8
         {
           indxUpdt = 0;         
-          for ( uint8_t y = 0; y < 2; y++){            
+          // Modified to only operate in the horizontal axis (y = 0)
+          for ( uint8_t y = 0; y < 1; y++){            
             int16_t count = 0,
                     summa = 0;
             for ( uint8_t i = 2; i < MIRROR; i++)                    
@@ -553,16 +556,17 @@ void loop()
            if ( y )
            {
             srvoPosn[y] = constrain( srvoPosn[y], 1500, 2100);        
-            OCR1C =  srvoPosn[y];              // Pin 11        
+            //OCR1C =  srvoPosn[y];              // Pin 11        
            }
            else 
            {
             srvoPosn[y] = constrain( srvoPosn[y], 800, 1900);        
-            OCR1B =  srvoPosn[y];              // Pin 10
+            //OCR1B =  srvoPosn[y];              // Pin 10
+            angle = map(srvoPosn[y], 800, 1900,  -180, 180);
            }
          }  
        }
-*/       
+       
              
    if (Serial.available() > 0) {   
     incomingByte = Serial.read();
@@ -614,5 +618,4 @@ void loop()
   digitalWrite(10, LOW);
   SPI.transfer(angle);
   digitalWrite(10, HIGH);
-  angle++; 
 }
