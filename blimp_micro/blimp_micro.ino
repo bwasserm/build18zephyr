@@ -49,7 +49,7 @@ const    uint8_t  srvoAccl[2] = { 2, 1};          // Filter's responsivnes adjus
          int16_t  lokaVect[2][MIRROR] = {{ 0, 0}};// "Rolling Filter", Extremely efficient "Median" LPF.     
          int16_t  srvoPosn[2] = { 1350, 1800};    // Keep current Position.
 const    uint16_t updtRate    =  8;               // 1 Update servo position per 8 frames (4 per dimension).
-
+byte angle; // This is the angle in degrees that the sound source is at
          
 const prog_int16_t Hamming[128] PROGMEM = {
 // elements 1 & 128 "trimmed" to "0"
@@ -431,6 +431,7 @@ void setup() {
 
   // Slow down the master a bit
   SPI.setClockDivider(SPI_CLOCK_DIV8);
+  angle = 0;
   
   // Example source stuff (probably unnecessary)
   //pinMode(10, OUTPUT);  //Servo Horizontal
@@ -455,7 +456,6 @@ void setup() {
 
 void loop()
 {
-  byte angle = 0; // This is the angle in degrees that the sound source is at
   char incomingByte;
   int16_t  vremn = 0;  
 

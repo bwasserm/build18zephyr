@@ -24,7 +24,7 @@ int hoist_position = HOIST_UP;
 PacketLink link();
 
 // SPI globals
-byte spi_val = 0;
+volatile byte spi_val = 0;
 volatile boolean spi_available;
 
 // SPI interrupt routine
@@ -52,6 +52,7 @@ void  setup(){
   // now turn on interrupts
   SPI.attachInterrupt();
 
+  Serial.begin(BAUD);
 }
 
 void loop(){
