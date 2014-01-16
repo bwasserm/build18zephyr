@@ -433,6 +433,13 @@ void setup() {
   SPI.setClockDivider(SPI_CLOCK_DIV8);
   angle = 0;
   
+  
+  // Turn Pins 2 and 3 on as HIGH to provide power to the mics
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  digitalWrite(2, HIGH);
+  digitalWrite(3, HIGH);
+  
   // Example source stuff (probably unnecessary)
   //pinMode(10, OUTPUT);  //Servo Horizontal
   pinMode(11, OUTPUT);  //Servo Vertical
@@ -610,6 +617,11 @@ void loop()
           Serial.print("\t");    
         }
       }
+    }
+    
+    if(incomingByte == 'a'){
+      // Print the angle
+      Serial.println(angle);
     }
   }
  
