@@ -27,7 +27,7 @@ int hoist_position = HOIST_UP;
 PacketLink link;
 
 // SPI globals
-byte spi_val = 0;
+volatile byte spi_val = 0;
 volatile boolean spi_available;
 byte angle; //angle in degrees that the sound source is at
 boolean hoist_is_lowered;
@@ -93,6 +93,8 @@ void  setup(){
   
   //init some globals
   hoist_is_lowered = false;
+
+  Serial.begin(BAUD);
 }
 
 void loop(){
