@@ -27,7 +27,7 @@
 #include "pins_arduino.h"
 
 #define FFT_SIZE           128                    // Number of samples; FFT Size
-#define SMPLTIME            39                    // 50 ksps; 25 ksps per channel; 12.5 kHz Audio.
+#define SMPLTIME            19 //39 is old val                   // 50 ksps; 25 ksps per channel; 12.5 kHz Audio.
 #define SRVOTIME         20000                    // :2 = 20.000 msec, or 50 Hz
 #define CHANNELS             2                    
 
@@ -569,7 +569,7 @@ void loop()
            {
             srvoPosn[y] = constrain( srvoPosn[y], 800, 1900);        
             //OCR1B =  srvoPosn[y];              // Pin 10
-            angle = map(srvoPosn[y], 800, 1900,  -180, 180);
+            angle = map(srvoPosn[y], 800, 1900,  0, 180);
            }
          }  
        }
