@@ -168,12 +168,13 @@ void loop(){
       sender = link.get_last_sender();
       //if no target, start target, make sure other remote is off
       if(target == 0) {
-        target = sender;
         //if request, send start instruction to sender, if deploy, send it to the other remote
         if((sender == REM1_ADDR && command == CMD_BCN_REQ) || (sender == REM2_ADDR && command == CMD_BCN_DEP)) {
           link.send_packet(REM1_ADDR,CMD_BCN_START);
+          target = REM1_ADDR;
         } else {
           link.send_packet(REM2_ADDR,CMD_BCN_START);
+          target = REM2_ADDR;
         }
       }
       //otherwise, either already targeting remote or targeting the other remote, so do nothing
