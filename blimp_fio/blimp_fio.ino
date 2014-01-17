@@ -2,12 +2,14 @@
 #include <PacketLink.h>
 
 // Pin Assignment Defines
-#define HOIST_SERVO_PIN  9
-#define LEFT_MOTOR_PIN   4
-#define RIGHT_MOTOR_PIN  5
-#define MIC_L_PIN       A0
-#define MIC_C_PIN       A1
-#define MIC_R_PIN       A2
+#define LEFT_MOTOR_PIN A0
+#define RIGHT_MOTOR_PIN A1
+#define HOIST_POS_PIN A2
+#define HOIST_NEG_PIN A3
+
+#define PROX_L A5
+#define PROX_C A6
+#define PROX_R A7
 
 // Hoist positions
 #define HOIST_UP 0
@@ -17,11 +19,6 @@
 
 #define GO_RIGHT 30
 #define GO_LEFT -30
-
-#define LEFT_MOTOR_PIN 23
-#define RIGHT_MOTOR_PIN 24
-#define HOIST_POS_PIN 25
-#define HOIST_NEG_PIN 26
 
 // time for hoist travel, in ms
 #define HOIST_TIME 5000
