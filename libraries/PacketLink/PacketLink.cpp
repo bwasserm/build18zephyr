@@ -62,9 +62,9 @@ byte PacketLink::check_packets(){
       last_sender = from_addr;
 
       // Reply to pings here, since the source address isn't returned
-      if(command == CMD_PING){
-        send_packet(from_addr, CMD_ECHO);
-      }
+      //    if(command == CMD_PING){
+      //   send_packet(from_addr, CMD_NULL);
+      // }
       last_sender = (packet >> 3) & 0x3;
       // Return the received command
       return command;

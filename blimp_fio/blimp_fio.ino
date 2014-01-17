@@ -146,11 +146,11 @@ void loop(){
    byte sender = 0;
    switch(command){
     case(CMD_NULL):
-    case(CMD_PING):
-    case(CMD_ECHO):
+    case(CMD_BCN_DEP):
     case(CMD_BCN_START):
     case(CMD_BCN_STOP):
-    case(CMD_BCN_BEEP):
+    case(CMD_MANUAL_LEFT):
+    case(CMD_MANUAL_RIGHT):
       break;
     case(CMD_BCN_REQ):
       sender = link.get_last_sender();

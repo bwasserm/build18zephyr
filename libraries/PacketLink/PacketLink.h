@@ -41,12 +41,12 @@
 #define REM2_ADDR 3
 #define BROAD_ADDR 255
 #define CMD_NULL 0
-#define CMD_PING 1
-#define CMD_ECHO 2
-#define CMD_BCN_REQ 3
-#define CMD_BCN_START 4
-#define CMD_BCN_STOP 5
-#define CMD_BCN_BEEP 6
+#define CMD_BCN_DEP 1
+#define CMD_BCN_START 2
+#define CMD_BCN_STOP 3
+#define CMD_BCN_REQ 4
+#define CMD_MANUAL_LEFT 5
+#define CMD_MANUAL_RIGHT 6
 #define CMD_HOIST 7
 // THERE CAN BE ONLY EIGHT
  
