@@ -27,13 +27,14 @@
 #include "pins_arduino.h"
 
 #define FFT_SIZE           128                    // Number of samples; FFT Size
-#define SMPLTIME            19 //39 is old val                   // 50 ksps; 25 ksps per channel; 12.5 kHz Audio.
+#define SMPLTIME            19 //39 is old val 19                  // 50 ksps; 25 ksps per channel; 12.5 kHz Audio.
 #define SRVOTIME         20000                    // :2 = 20.000 msec, or 50 Hz
 #define CHANNELS             2                    
 
 #define LOG_2_FFT            7                    /* log2 FFT_SIZE */
 #define MIRROR        FFT_SIZE / 2
 #define NWAVE              256                    /* full length of Sinewave[] */
+#define KOEFF             1.0
    
 volatile int16_t  x_r[CHANNELS][FFT_SIZE];        // MEM: 512 Bytes
 
@@ -45,12 +46,12 @@ volatile int16_t  x_r[CHANNELS][FFT_SIZE];        // MEM: 512 Bytes
 volatile uint8_t  flagSamp    =  0;
          uint8_t  directin    =  0;               // X - Y Dimension.   
          uint8_t  indxUpdt    =  0;
-const    uint8_t  srvoAccl[2] = { 2, 1};          // Filter's responsivnes adjustment ( 1 is slowest).
+const    uint8_t  srvoAccl[2] = { 50, 1};          // Filter's responsivnes adjustment ( 1 is slowest).
          int16_t  lokaVect[2][MIRROR] = {{ 0, 0}};// "Rolling Filter", Extremely efficient "Median" LPF.     
          int16_t  srvoPosn[2] = { 1350, 1800};    // Keep current Position.
-const    uint16_t updtRate    =  8;               // 1 Update servo position per 8 frames (4 per dimension).
-byte angle; // This is the angle in degrees that the sound source is at
-         
+const    uint16_t updtRate    =  4;               // 1 Update servo position per 8 frames (4 per dimension).
+//byte angle; // This is the angle in degrees that the sound source is at
+  float angle;       
 const prog_int16_t Hamming[128] PROGMEM = {
 // elements 1 & 128 "trimmed" to "0"
       +0,     +20,     +21,     +21,     +22,     +24,     +25,     +27,     +29,     +31,     +34,     +37,     +40,     +44,     +47,     +51,
@@ -368,7 +369,8 @@ void setup() {
   Serial.begin(115200);  
 
   /* Setup ADC */
-  ADMUX    = 0xDC;        // 0xD4 = x40.  0xCC = x10.  0xDC = Gain x200, (1) 11100. 
+//  ADMUX    = 0xDC;        // 0xD4 = x40.  0xCC = x10.  0xDC = Gain x200, (1) 11100. 
+  ADMUX    = 0xC4;        // Single ended input of ADC4 and ADC5 aka pins A3 and A2
   DIDR0    = 0x00;        // Turn Off Digital Input Buffer.
 
   ADCSRA = ((1<< ADEN)|	// 1 = ADC Enable
@@ -381,7 +383,8 @@ void setup() {
 	  (0<<ADPS0));
 
   ADCSRB = ((1<<ADHSM)|	// High Speed mode select
-       	  (1<< MUX5)|   // 1 (10100) ADC1<->ADC4 Gain = 200x.
+//     	  (1<< MUX5)|   // 1 (10100) ADC1<->ADC4 Gain = 200x.
+          (0<< MUX5)|   // Changing to single ended ADC read
 	  (0<<ADTS3)|	
 	  (0<<ADTS2)|   // Sets Auto Trigger source - TIMER0 OCA
 	  (1<<ADTS1)|
@@ -465,6 +468,7 @@ void loop()
 {
   char incomingByte;
   int16_t  vremn = 0;  
+  float summa = 0;
 
   //if ( directin ) directin = 0;                // X koordinate;
   //else            directin = 1;                // Y koordinate;
@@ -512,22 +516,31 @@ void loop()
           if((qr < 0) && (qi <  0)) phase -= 1024;
           if((qr < 0) && (qi >= 0)) phase += 1024;
          }
+       // This is the phase of the frequency bin i for mic y
        x_r[y][i] = phase;
        }
      }
       
         for ( uint8_t i = 2; i < MIRROR; i++)  // LIMITS: 150 HZ 
         {                                      // Electrical grid interference, Motor Vibration. 
-          vremn = 0;                                       
+          vremn = 0;
+          // If both mics have a valid phase value          
           if ((x_r[0][i] != -1) && (x_r[1][i] != -1))
           {
-            vremn = x_r[0][i] - x_r[1][i];            
+            // vremn is the phase difference for bin i
+            vremn = x_r[0][i] - x_r[1][i];
+            if(vremn != 0){
+              Serial.println(vremn);
+            }
+            // rotate vremn to within [-1024, 1024]            
             if (vremn >  1024) vremn -= 2048;
             if (vremn < -1024) vremn += 2048;
             
+            // Scale by 32/i (i is bin #). So bias towards lower frequencies?
             vremn = (32 * vremn) / i;                                    
             vremn -= 256;                      // MIC Time Offset Correction (1 ADC, 25 usec delay).
-
+            
+          // lokaVect is an accumulator. Let it grow towards the phase angle difference. 
           if (lokaVect[directin][i] < vremn) lokaVect[directin][i] += srvoAccl[directin];
           if (lokaVect[directin][i] > vremn) lokaVect[directin][i] -= srvoAccl[directin];
           }
@@ -539,10 +552,13 @@ void loop()
           indxUpdt = 0;         
           // Modified to only operate in the horizontal axis (y = 0)
           for ( uint8_t y = 0; y < 1; y++){            
-            int16_t count = 0,
-                    summa = 0;
+            int16_t count = 0;
+//                    summa = 0;
+                  // summa = sum of angle offsets?
+                  summa = 0;
             for ( uint8_t i = 2; i < MIRROR; i++)                    
             { 
+              // Not sure what faza does. Or means.
               faza[y][i] = lokaVect[y][i];
 
               if (abs(lokaVect[y][i]) > 8)     //  2048 / 8 ~= 360 / 256 ~= 1.5 DEGREE
@@ -557,20 +573,23 @@ void loop()
               if (lokaVect[y][i] > 0) lokaVect[y][i]--;
             }
 
-           if (count)    summa /= count;
-
-           srvoPosn[y] -= summa;         
+      //     if (count)    summa /= count;
+      //     srvoPosn[y] -= summa;         
+    //  angle = summa;
+            srvoPosn[y] = asin(KOEFF * summa / 2048.0) * 180.0 / PI;
+            angle = srvoPosn[y];
            if ( y )
            {
-            srvoPosn[y] = constrain( srvoPosn[y], 1500, 2100);        
+           // srvoPosn[y] = constrain( srvoPosn[y], 1500, 2100);        
             //OCR1C =  srvoPosn[y];              // Pin 11        
            }
            else 
-           {
+           { 
             srvoPosn[y] = constrain( srvoPosn[y], 800, 1900);        
             //OCR1B =  srvoPosn[y];              // Pin 10
-            angle = map(srvoPosn[y], 800, 1900,  0, 180);
+            //angle = map(srvoPosn[y], 800, 1900,  0, 180);
            }
+          // angle = srvoPosn[y];
          }  
        }
        
@@ -621,7 +640,21 @@ void loop()
     
     if(incomingByte == 'a'){
       // Print the angle
-      Serial.println(angle);
+      Serial.println();
+      Serial.print("output angle:\t");
+      Serial.print(angle);
+      Serial.print("\tsumma:\t");
+      Serial.println(summa);
+    }
+    
+    if(incomingByte == 'l'){
+      // Print lokaVect
+      Serial.println();
+      Serial.print("lokaVect[0][i]:\n");
+      for(int i = 2; i < MIRROR; i++){
+        Serial.print(lokaVect[0][i]);
+        Serial.print(" ");
+      }
     }
   }
  

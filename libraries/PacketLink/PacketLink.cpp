@@ -2,7 +2,7 @@
 #include "PacketLink.h"
 
 PacketLink::PacketLink(){
-	Serial.begin(BAUD);
+	
 	// Set channel
 	// TODO
 }

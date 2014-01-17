@@ -135,6 +135,8 @@ void setup(){
   pinMode(READY_LED_PIN, OUTPUT);
   //figure the ready pin should always be on, or maybe always on when networking is working
   digitalWrite(READY_LED_PIN, HIGH);
+  
+  Serial.begin(BAUD);
 }
 
 void loop(){ 
@@ -161,7 +163,7 @@ void loop(){
       // Nothing to do. Maybe flash LED to indicate error?
       break;
   }
-  command = check_buttons();
+  command = check_buttons();    
   switch(command){
     case(CMD_NULL):
       // Nothing pressed, nothing to do

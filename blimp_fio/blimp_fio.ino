@@ -43,6 +43,8 @@ ISR (SPI_STC_vect)
   
   spi_available = true;
 }  // end of interrupt routine SPI_STC_vect
+
+// Returns true if no obstacle
 boolean check_for_obstacles(int direction) 
 {
   return(PROX_THRESH < analogRead(direction));
@@ -61,9 +63,11 @@ void turn_left()
 void move_forward()
 {
   if (!check_for_obstacles(PROX_C)) {
-    if(check_for_obstacles(PROX_L)) {
+    if(!check_for_obstacles(PROX_L)) {
       turn_right();
-    } else if(check_for_obstacles(PROX_R)) {
+    } else if(!check_for_obstacles(PROX_R)) {
+      turn_left();
+    } else{
       turn_left();
     }
   } else {
@@ -105,6 +109,8 @@ boolean raise_hoist()
 
 void  setup(){
   
+  Serial.begin(BAUD);
+  
   // Setup SPI Slave
   // have to send on master in, *slave out*
   pinMode(MISO, OUTPUT);
@@ -135,12 +141,9 @@ void  setup(){
   //init some globals
   hoist_is_lowered = false;
   hoist_position = HOIST_UP;
-
-  Serial.begin(BAUD);
 }
 
 void loop(){
-  
    byte command = CMD_NULL;
    command = link.check_packets();
    byte sender = 0;
@@ -210,6 +213,5 @@ void loop(){
   else {
     stay_in_place();
   }
-
   
 }
