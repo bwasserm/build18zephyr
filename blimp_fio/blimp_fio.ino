@@ -61,9 +61,9 @@ void turn_left()
 void move_forward()
 {
   if (!check_for_obstacles(PROX_C)) {
-    if(check_for_obstacles(PROX_L) {
+    if(check_for_obstacles(PROX_L)) {
       turn_right();
-    } else if(check_for_obstacles(PROX_R) {
+    } else if(check_for_obstacles(PROX_R)) {
       turn_left();
     }
   } else {
