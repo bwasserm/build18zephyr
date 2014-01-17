@@ -20,8 +20,8 @@
 
 #define LEFT_MOTOR_PIN 23
 #define RIGHT_MOTOR_PIN 24
-#define HOIST_POS_PIN NaN
-#define HOIST_NEG_PIN NaN
+#define HOIST_POS_PIN 25
+#define HOIST_NEG_PIN 26
 
 // time for hoist travel, in ms
 #define HOIST_TIME 5000
