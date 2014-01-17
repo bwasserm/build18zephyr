@@ -146,24 +146,31 @@ void loop(){
    byte sender = 0;
    switch(command){
     case(CMD_NULL):
-    case(CMD_BCN_DEP):
+     break;
     case(CMD_BCN_START):
+      target = 0; //reset automatic targeting when changed to manual
+      move_forward();
+      break;
     case(CMD_BCN_STOP):
+      stay_in_place();
+      break;
     case(CMD_MANUAL_LEFT):
+      turn_left();
+      break;
     case(CMD_MANUAL_RIGHT):
+      turn_right();
       break;
     case(CMD_BCN_REQ):
+    case(CMD_BCN_DEP):
       sender = link.get_last_sender();
       //if no target, start target, make sure other remote is off
       if(target == 0) {
         target = sender;
-        if(sender == REM1_ADDR) {
+        //if request, send start instruction to sender, if deploy, send it to the other remote
+        if((sender == REM1_ADDR && command == CMD_BCN_REQ) || (sender == REM2_ADDR && command == CMD_BCN_DEP)) {
           link.send_packet(REM1_ADDR,CMD_BCN_START);
-          //don't need this if we stop when we hoist and ignore conflicting targets
-       //   link.send_packet(REM2_ADDR,CMD_BCN_STOP); 
         } else {
           link.send_packet(REM2_ADDR,CMD_BCN_START);
-        //  link.send_packet(REM1_ADDR,CMD_BCN_STOP);
         }
       }
       //otherwise, either already targeting remote or targeting the other remote, so do nothing
@@ -175,6 +182,7 @@ void loop(){
       }
       else {
         hoist_is_lowered = raise_hoist();
+        target = 0; //reset target, person has presumably received or added a message
       }
       // Nothing needs to be done for these
       break;

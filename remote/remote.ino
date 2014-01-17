@@ -8,6 +8,7 @@
 #define LEFT_BEACON 1
 #define RIGHT_DEPLOY 2
 #define HOIST 3
+
 #define NUM_BUTTONS 4
 
 //this is just in case I mixed up the buttons, so I don't have to retype it everywhere
@@ -30,23 +31,25 @@ int button_state[] = {UP, UP, UP, UP};
  * Sends an audio signal to the blimp, flashes Tracking LED, sends RF packet to confirm
  * beaconing to other nodes (so only one beacons at a time)
  */
-void beacon(){
+/*void beacon(){
   // Don't beacon if beaconing is disabled (duh)
   if(beaconing == false){
     return;
   }
 }
-
+*/
 /* Enable the beaconing function
  */
 void enable_beaconing(){
   beaconing = true;
+  digitalWrite(BEACON_LED_PIN, HIGH);
 }
 
 /* Disable the beaconing function
  */
 void disable_beaconing(){
   beaconing = false;
+  digitalWrite(BEACON_LED_PIN, LOW);
 }
 
 
@@ -130,13 +133,15 @@ void setup(){
 
   pinMode(BEACON_LED_PIN, OUTPUT);
   pinMode(READY_LED_PIN, OUTPUT);
-
+  //figure the ready pin should always be on, or maybe always on when networking is working
+  digitalWrite(READY_LED_PIN, HIGH);
 }
 
 void loop(){ 
   byte command = CMD_NULL;
   command = link.check_packets();
   switch(command){
+    //if no command, turn off ready
     case(CMD_NULL):
     case(CMD_BCN_DEP):
     case(CMD_BCN_REQ):
@@ -170,19 +175,24 @@ void loop(){
       break;
     case(CMD_BCN_DEP):
       link.send_packet(BROAD_ADDR, CMD_BCN_REQ);
+      break;
       //here BCN_START and BCN_STOP tell the blimp to start and stop manual control
     case(CMD_BCN_START):
       link.send_packet(BLIMP_ADDR, CMD_BCN_START);  
+      break;
     case(CMD_BCN_STOP):
       link.send_packet(BLIMP_ADDR, CMD_BCN_STOP);
+      break;
       //manually go right or left
     case(CMD_MANUAL_RIGHT):
       link.send_packet(BLIMP_ADDR, CMD_MANUAL_RIGHT);
+      break;
     case(CMD_MANUAL_LEFT):
       link.send_packet(BLIMP_ADDR, CMD_MANUAL_LEFT);
+      break;
     default:
       // Do something on error?
       break;
   }
-  beacon();
+//  beacon();
 }
