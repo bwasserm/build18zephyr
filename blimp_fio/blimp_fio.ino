@@ -18,6 +18,14 @@
 #define GO_RIGHT 30
 #define GO_LEFT -30
 
+#define LEFT_MOTOR_PIN 23
+#define RIGHT_MOTOR_PIN 24
+#define HOIST_POS_PIN NaN
+#define HOIST_NEG_PIN NaN
+
+// time for hoist travel, in ms
+#define HOIST_TIME 5000
+
 // Globals
 int target = 0;
 int hoist_position = HOIST_UP;
@@ -42,32 +50,54 @@ boolean check_for_obstacles()
 }
 void turn_right()
 {
-  
+  digitalWrite(LEFT_MOTOR_PIN, 1);
+  digitalWrite(RIGHT_MOTOR_PIN, 0);
 }
 
 void turn_left()
 {
-  
+  digitalWrite(LEFT_MOTOR_PIN, 0);
+  digitalWrite(RIGHT_MOTOR_PIN, 1);
 }
 void move_forward()
 {
   if (!check_for_obstacles()) {
     
   }
-  //TODO
+  digitalWrite(LEFT_MOTOR_PIN, 1);
+  digitalWrite(RIGHT_MOTOR_PIN, 1);
   
 }
+
 void stay_in_place()
 {
-  
+  digitalWrite(LEFT_MOTOR_PIN, 0);
+  digitalWrite(RIGHT_MOTOR_PIN, 0);
 }
+
 boolean lower_hoist()
 {
-  return hoist_is_lowered;
+  digitalWrite(HOIST_POS_PIN, 0);
+  digitalWrite(HOIST_NEG_PIN, 1);
+  hoist_position = HOIST_LOWERING;
+  delay(HOIST_TIME);
+  // stop the hoist
+  digitalWrite(HOIST_POS_PIN, 0);
+  digitalWrite(HOIST_NEG_PIN, 0);
+  hoist_position = HOIST_DOWN;
+  return true; // the hoist is lowered
 }
 boolean raise_hoist()
 {
-  return hoist_is_lowered;
+  digitalWrite(HOIST_POS_PIN, 1);
+  digitalWrite(HOIST_NEG_PIN, 0);
+  hoist_position = HOIST_RAISING;
+  delay(HOIST_TIME);
+  // stop the hoist
+  digitalWrite(HOIST_POS_PIN, 0);
+  digitalWrite(HOIST_NEG_PIN, 0);
+  hoist_position = HOIST_UP;
+  return false; // the hoist is not lowered
 }
 
 void  setup(){
