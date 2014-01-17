@@ -22,6 +22,8 @@
 
 // time for hoist travel, in ms
 #define HOIST_TIME 5000
+// distance before turning
+#define PROX_THRESH 768
 
 // Globals
 int target = 0;
@@ -41,9 +43,9 @@ ISR (SPI_STC_vect)
   
   spi_available = true;
 }  // end of interrupt routine SPI_STC_vect
-boolean check_for_obstacles() 
+boolean check_for_obstacles(int direction) 
 {
- return false; 
+  return(PROX_THRESH < analogRead(direction));
 }
 void turn_right()
 {
@@ -58,12 +60,16 @@ void turn_left()
 }
 void move_forward()
 {
-  if (!check_for_obstacles()) {
-    
+  if (!check_for_obstacles(PROX_C)) {
+    if(check_for_obstacles(PROX_L) {
+      turn_right();
+    } else if(check_for_obstacles(PROX_R) {
+      turn_left();
+    }
+  } else {
+    digitalWrite(LEFT_MOTOR_PIN, 1);
+    digitalWrite(RIGHT_MOTOR_PIN, 1);
   }
-  digitalWrite(LEFT_MOTOR_PIN, 1);
-  digitalWrite(RIGHT_MOTOR_PIN, 1);
-  
 }
 
 void stay_in_place()
@@ -115,8 +121,20 @@ void  setup(){
   
   link.set_id(BLIMP_ADDR);
   
+  // set up motor pins
+  pinMode(HOIST_UP, OUTPUT);
+  pinMode(HOIST_DOWN, OUTPUT);
+  pinMode(HOIST_POS_PIN, OUTPUT);
+  pinMode(HOIST_NEG_PIN, OUTPUT);
+
+  // set up prox pins
+  pinMode(PROX_L, INPUT);
+  pinMode(PROX_C, INPUT);
+  pinMode(PROX_R, INPUT);
+
   //init some globals
   hoist_is_lowered = false;
+  hoist_position = HOIST_UP;
 
   Serial.begin(BAUD);
 }
