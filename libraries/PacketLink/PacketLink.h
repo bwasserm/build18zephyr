@@ -36,9 +36,9 @@
   7: Activate hoist
   
  */
-#define BLIMP_ADDR 0
-#define REM1_ADDR 1
-#define REM2_ADDR 2
+#define BLIMP_ADDR 1
+#define REM1_ADDR 2
+#define REM2_ADDR 3
 #define BROAD_ADDR 255
 #define CMD_NULL 0
 #define CMD_PING 1
@@ -54,12 +54,12 @@ class PacketLink{
 	public:
 		byte my_id;
 		PacketLink();
+		byte get_last_sender();
 		void set_id(byte id);
 		void send_packet(byte target, byte command);
-		byte check_packets();
-		byte get_last_sender();
 	private:
-		byte last_sender;		
+		byte last_sender;
+		
 };
  
 #endif // PACKET_LINK_H

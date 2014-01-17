@@ -1,9 +1,6 @@
 #include <SPI.h>
 #include <PacketLink.h>
 
-// The blimp is ID 0
-#define MY_ID 0
-
 // Pin Assignment Defines
 #define HOIST_SERVO_PIN  9
 #define LEFT_MOTOR_PIN   4
