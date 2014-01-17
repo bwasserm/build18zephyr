@@ -1,5 +1,8 @@
 #include <PacketLink.h>
 
+//change this for the different remotes!
+#define MY_ADDR REM1_ADDR
+
 // Pin Assignment Defines
 #define BEACON_LED_PIN  10
 #define READY_LED_PIN   11
@@ -135,6 +138,10 @@ void setup(){
   pinMode(READY_LED_PIN, OUTPUT);
   //figure the ready pin should always be on, or maybe always on when networking is working
   digitalWrite(READY_LED_PIN, HIGH);
+  
+  link.set_id(MY_ADDR);
+  
+  
 }
 
 void loop(){ 
@@ -171,10 +178,10 @@ void loop(){
       link.send_packet(BLIMP_ADDR, CMD_HOIST);
       break;
     case(CMD_BCN_REQ):
-      link.send_packet(BROAD_ADDR, CMD_BCN_REQ);
+      link.send_packet(BLIMP_ADDR, CMD_BCN_REQ);
       break;
     case(CMD_BCN_DEP):
-      link.send_packet(BROAD_ADDR, CMD_BCN_REQ);
+      link.send_packet(BLIMP_ADDR, CMD_BCN_DEP);
       break;
       //here BCN_START and BCN_STOP tell the blimp to start and stop manual control
     case(CMD_BCN_START):
