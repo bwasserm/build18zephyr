@@ -36,7 +36,9 @@
   7: Activate hoist
   
  */
-#define BLIMP_ADDR 0
+#define BLIMP_ADDR 1
+#define REM1_ADDR 2
+#define REM2_ADDR 3
 #define BROAD_ADDR 255
 #define CMD_NULL 0
 #define CMD_PING 1
