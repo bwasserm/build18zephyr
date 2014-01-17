@@ -59,6 +59,7 @@ class PacketLink{
 		void send_packet(byte target, byte command);
 		byte check_packets();
 	private:
+		byte last_sender;
 		
 };
  

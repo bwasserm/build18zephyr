@@ -11,8 +11,7 @@ PacketLink::PacketLink(){
  */
 byte PacketLink::get_last_sender(){
 
-  // TODO: Return an actual last sender
-  return REM1_ADDR;
+  return last_sender;
 }
 
 void PacketLink::set_id(byte id){
@@ -57,6 +56,10 @@ byte PacketLink::check_packets(){
     
     // Only accept packets addressed to the current node, or broadcast
     if(to_addr == my_id || to_addr == from_addr){
+
+      // Update the node that transmitted last
+      last_sender = from_addr;
+
       // Reply to pings here, since the source address isn't returned
       if(command == CMD_PING){
         send_packet(from_addr, CMD_ECHO);
