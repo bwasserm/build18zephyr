@@ -108,7 +108,7 @@ byte check_buttons(){
   //if right/deploy button, go right or deploy blimp depending on mode
   else if(button_state[RIGHT_DEPLOY] == DOWN) {
     if(manual_mode) {
-      return CMD_MANUAL_LEFT;
+      return CMD_MANUAL_RIGHT;
     }
     else {
       return CMD_BCN_DEP;
