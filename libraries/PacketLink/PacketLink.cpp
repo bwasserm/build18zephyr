@@ -10,6 +10,12 @@ PacketLink::PacketLink(){
 void PacketLink::set_id(byte id){
 	// ID can only be two bits long
 	my_id = id & 0x3;
+        last_sender = id & 0x3;
+}
+
+//keep track of sender so that blimp knows which remote to reply to
+byte PacketLink::get_last_sender(){
+  return last_sender;
 }
 	
 /* Sends a wireless packet
@@ -53,7 +59,7 @@ byte PacketLink::check_packets(){
       if(command == CMD_PING){
         send_packet(from_addr, CMD_ECHO);
       }
-      
+      last_sender = (packet >> 3) & 0x3;
       // Return the received command
       return command;
     }

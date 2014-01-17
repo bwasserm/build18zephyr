@@ -37,6 +37,8 @@
   
  */
 #define BLIMP_ADDR 0
+#define REM1_ADDR 1
+#define REM2_ADDR 2
 #define BROAD_ADDR 255
 #define CMD_NULL 0
 #define CMD_PING 1
@@ -55,8 +57,9 @@ class PacketLink{
 		void set_id(byte id);
 		void send_packet(byte target, byte command);
 		byte check_packets();
+		byte get_last_sender();
 	private:
-		
+		byte last_sender;		
 };
  
 #endif // PACKET_LINK_H
