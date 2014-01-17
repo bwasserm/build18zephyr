@@ -196,7 +196,6 @@ void loop(){
       // Check SPI buffer, get angle
     if(spi_available){
       angle = spi_val;
-      Serial.println(spi_val);
       spi_available = false;
       // this is just placeholding atm
       if(angle < GO_RIGHT) {
