@@ -7,6 +7,14 @@ PacketLink::PacketLink(){
 	// TODO
 }
 
+/* Returns the last id that sent a packet
+ */
+byte PacketLink::get_last_sender(){
+
+  // TODO: Return an actual last sender
+  return REM1_ADDR;
+}
+
 void PacketLink::set_id(byte id){
 	// ID can only be two bits long
 	my_id = id & 0x3;

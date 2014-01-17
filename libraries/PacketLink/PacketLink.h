@@ -54,6 +54,7 @@ class PacketLink{
 	public:
 		byte my_id;
 		PacketLink();
+		byte get_last_sender();
 		void set_id(byte id);
 		void send_packet(byte target, byte command);
 		byte check_packets();
